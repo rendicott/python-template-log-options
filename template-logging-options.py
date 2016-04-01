@@ -20,7 +20,7 @@ defaultlogfilename = scriptfilename + '.log'
 
 def setuplogging(loglevel,printtostdout,logfile):
     #pretty self explanatory. Takes options and sets up logging.
-    print "starting up with loglevel",loglevel,logging.getLevelName(loglevel)
+    print("starting up with loglevel",loglevel,logging.getLevelName(loglevel))
     logging.basicConfig(filename=logfile,
                         filemode='w',level=loglevel, 
                         format='%(asctime)s:%(levelname)s:%(message)s')
@@ -30,41 +30,10 @@ def setuplogging(loglevel,printtostdout,logfile):
         logger = logging.getLogger()
         logger.addHandler(soh)
 
-def giveupthefunc():
-    #This function grabs the name of the current function
-    # this is used in most of the debugging/info/warning messages
-    # so I know where an operation failed
-    '''This code block comes from user "KindAll" on StackOverflow
-    http://stackoverflow.com/a/4506081'''
-    frame = inspect.currentframe(1)
-    code  = frame.f_code
-    globs = frame.f_globals
-    functype = type(lambda: 0)
-    funcs = []
-    for func in gc.get_referrers(code):
-        if type(func) is functype:
-            if getattr(func, "func_code", None) is code:
-                if getattr(func, "func_globals", None) is globs:
-                    funcs.append(func)
-                    if len(funcs) > 1:
-                        return None
-    return funcs[0] if funcs else None
-
-def anotherfunction():
-    ''' Another sample function.
-    '''
-    thisFunctionName = str(giveupthefunc())
-    logging.info("%s : This is an INFO message" % thisFunctionName)
-    logging.error("%s : This is an ERROR message" % thisFunctionName)
-    logging.warning("%s : This is a WARNING message" % thisFunctionName)
-    logging.critical("%s : This is a CRITICAL message" % thisFunctionName)
-    logging.debug("%s : This is a DEBUG message" % thisFunctionName)
-
 def main(options):
     ''' The main() method. Program starts here.
     '''
     # test the logging
-    thisFunctionName = str(giveupthefunc())
     logging.info("%s : This is an INFO message" % thisFunctionName)
     logging.error("%s : This is an ERROR message" % thisFunctionName)
     logging.warning("%s : This is a WARNING message" % thisFunctionName)
@@ -75,8 +44,6 @@ def main(options):
         print("I parsed the string '%s' as your desired samplefileoption" % options.samplefileoption)
     except Exception as ex:
         print("Exception processing samplefileoption: %s" % str(ex))
-    # run another function to show how the func name changes in the logging
-    anotherfunction()
 
 if __name__ == '__main__':
     '''This main section is mostly for parsing arguments to the 
@@ -91,7 +58,10 @@ if __name__ == '__main__':
                     type='string',
                     metavar='FILE',
                     help=("This file is an optional argument to pass into the script"),default=None)
-
+    parser.add_option('--sampleflag',
+                    action='store_true',
+                    help=("Boolean flag. If this option is present then options.sampleflag will be True"),
+                    default=False)
     parser_debug = OptionGroup(parser,'Debug Options')
     parser_debug.add_option('-d','--debug',type='string',
         help=('Available levels are CRITICAL (3), ERROR (2), '
@@ -120,7 +90,7 @@ if __name__ == '__main__':
     try:
         open(options.logfile,'w') #try and open the default log file
     except:
-        print "Unable to open log file '%s' for writing." % options.logfile
+        print("Unable to open log file '%s' for writing." % options.logfile)
         logging.debug(
             "Unable to open log file '%s' for writing." % options.logfile)
 
